@@ -141,7 +141,7 @@ export function TechnicalAssetConfigurationForm({
                 break;
             }
             default:
-                inputComponent = <Input />;
+                inputComponent = <Input disabled={isDisabled ?? false} />;
                 break;
         }
         return (
