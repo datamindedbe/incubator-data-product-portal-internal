@@ -6,13 +6,14 @@ from alembic import command
 from alembic.config import Config
 from rich import print
 from rich.console import Console
+from sqlalchemy import text
 from sqlalchemy_utils.functions import create_database, database_exists, drop_database
 
 from app.core.helpers.local import add_additional_env_vars
 
 add_additional_env_vars()
 
-from app.database.database import get_url  # noqa: E402
+from app.database.database import get_db_session, get_url  # noqa: E402
 from app.seed import seed_db  # noqa: E402
 
 app = typer.Typer(help="Database migration toolkit for the Data product portal.")
@@ -83,6 +84,33 @@ def init(
             seed_cmd(seed_path)
     else:
         print("Operation cancelled")
+
+
+@app.command(name="init-if-empty")
+def init_if_empty(
+    seed_path: Optional[str] = typer.Argument(
+        default=None,
+        help="Path to a seed script, only run if the database has no domains yet.",
+    ),
+):
+    """
+    Idempotent counterpart to `init --force`: never drops existing data.
+    Creates the database and migrates to head if needed, then runs the given
+    seed script only on a genuinely empty database. Safe to run on every
+    container start for a persistent local setup (see compose.local.yaml).
+    """
+    if not database_exists(get_url()):
+        print("Database does not exist, creating")
+        create_database(get_url())
+    migrate()
+
+    if seed_path:
+        db = next(get_db_session())
+        domain_count = db.execute(text("SELECT COUNT(*) FROM domains")).scalar()
+        if domain_count == 0:
+            seed_cmd(seed_path)
+        else:
+            print(f"Database already has {domain_count} domain(s), skipping seed")
 
 
 if __name__ == "__main__":

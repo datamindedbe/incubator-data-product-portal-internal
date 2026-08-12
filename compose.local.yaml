@@ -1,0 +1,40 @@
+# Local override: persistent database, no demo dataset.
+#
+# Enable for yourself without touching the shared compose.yaml/.env.docker
+# defaults everyone else's `docker compose up` still gets:
+#
+#   echo "COMPOSE_FILE=compose.yaml:compose.local.yaml" >> .env
+#
+# (.env is gitignored - this only changes behavior for you.) Then plain
+# `docker compose up`/`down` picks this up automatically.
+#
+# - postgresql gets a named volume, so `docker compose down` (without `-v`)
+#   no longer loses data - only `docker compose down -v` does.
+# - portal runs `db_tool.py init-if-empty` instead of `init --force
+#   sample_data.sql`: migrates to head every start (idempotent, never drops
+#   data), and only seeds local_domains_seed.sql the first time, when the
+#   database has no domains yet.
+services:
+  postgresql:
+    volumes:
+      - portal_pg_data:/var/lib/postgresql/data
+
+  portal:
+    environment:
+      # Local-only: act as a real person instead of the shared .env.docker
+      # fixture user, so ownership/role assignments created here are
+      # attributable and (with can_become_admin flipped in the DB once,
+      # then POST .../role_assignments/global/become_admin) can self-admin.
+      DEFAULT_USERNAME: jonny.daenen@dataminded.com
+    volumes:
+      # Bind-mounted (not baked into the image) so editing the domain list
+      # doesn't require a rebuild - the Dockerfile only COPYs sample_data.sql.
+      # Root, not /app: the final Dockerfile stage sets no WORKDIR, so CMD
+      # runs from "/" and sample_data.sql itself lives at "/sample_data.sql".
+      - ./backend/local_domains_seed.sql:/local_domains_seed.sql:ro
+    command: >
+      bash -c "python -m app.db_tool init-if-empty local_domains_seed.sql
+      && uvicorn app.main:app --host 0.0.0.0 --port 5050"
+
+volumes:
+  portal_pg_data:
