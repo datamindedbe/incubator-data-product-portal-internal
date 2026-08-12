@@ -149,6 +149,10 @@ class TechnicalAssetService:
             data_product = self.db.get(DataProductModel, data_product_id)
             technical_asset.configuration.validate_configuration(data_product, self.db)
 
+        technical_asset.configuration.apply_namespace_default(
+            technical_asset.namespace
+        )
+
         technical_asset_schema = technical_asset.parse_pydantic_schema()
         tags = self._get_tags(technical_asset_schema.pop("tag_ids", []))
         access_modes = self._get_access_modes(

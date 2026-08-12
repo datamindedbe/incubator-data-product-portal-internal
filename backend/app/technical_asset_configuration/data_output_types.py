@@ -13,3 +13,4 @@ class DataOutputTypes(str, Enum):
     OSISemanticModelTechnicalAssetConfiguration = (
         "OSISemanticModelTechnicalAssetConfiguration"
     )
+    BigQueryTechnicalAssetConfiguration = "BigQueryTechnicalAssetConfiguration"

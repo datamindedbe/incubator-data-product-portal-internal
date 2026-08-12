@@ -5,6 +5,9 @@ from pydantic import Field
 from app.technical_asset_configuration.azure_blob.schema import (
     AzureBlobTechnicalAssetConfiguration,
 )
+from app.technical_asset_configuration.bigquery.schema import (
+    BigQueryTechnicalAssetConfiguration,
+)
 from app.technical_asset_configuration.data_output_types import DataOutputTypes
 from app.technical_asset_configuration.databricks.schema import (
     DatabricksTechnicalAssetConfiguration,
@@ -39,6 +42,7 @@ DataOutputs = Union[
     PostgreSQLTechnicalAssetConfiguration,
     OSISemanticModelTechnicalAssetConfiguration,
     AzureBlobTechnicalAssetConfiguration,
+    BigQueryTechnicalAssetConfiguration,
 ]
 
 DataOutputMap = {
@@ -51,6 +55,7 @@ DataOutputMap = {
     DataOutputTypes.PostgreSQLTechnicalAssetConfiguration: PostgreSQLTechnicalAssetConfiguration,
     DataOutputTypes.OSISemanticModelTechnicalAssetConfiguration: OSISemanticModelTechnicalAssetConfiguration,
     DataOutputTypes.AzureBlobTechnicalAssetConfiguration: AzureBlobTechnicalAssetConfiguration,
+    DataOutputTypes.BigQueryTechnicalAssetConfiguration: BigQueryTechnicalAssetConfiguration,
 }
 
 DataOutputConfiguration = Annotated[

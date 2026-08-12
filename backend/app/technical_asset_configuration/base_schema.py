@@ -123,6 +123,14 @@ class AssetProviderPlugin(ORMModel, ABC):
         """Render a template with configuration values. Template is fetched from db, context is filled with the full technical asset configuration + env info as dict."""
         return template.format(**self.model_dump(), **context)
 
+    def apply_namespace_default(self, namespace: str) -> None:
+        """Called on create with the owning Technical Asset's own namespace
+        (not the Data Product's - see use_namespace_when_not_source_aligned
+        for that). No-op by default; override for a field that should
+        default to this specific asset's identity rather than the product's,
+        e.g. a per-asset physical name with no meaningful UI form field
+        (see BigQueryTechnicalAssetConfiguration)."""
+
     def get_configuration(self, configs: list[ConfigType]) -> Optional[ConfigType]:
         """Get platform and environment specific configuration"""
         raise NotImplementedError

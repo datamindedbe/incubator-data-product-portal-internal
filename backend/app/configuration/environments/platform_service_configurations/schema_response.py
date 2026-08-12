@@ -10,6 +10,9 @@ from app.configuration.environments.platform_service_configurations.schemas impo
     AzureBlobConfig,
     DatabricksConfig,
 )
+from app.configuration.environments.platform_service_configurations.schemas.bigquery_schema import (
+    BigQueryConfig,
+)
 from app.configuration.environments.platform_service_configurations.schemas.postgresql_schema import (
     PostgreSQLConfig,
 )
@@ -32,6 +35,7 @@ ConfigType = (
     | RedshiftConfig
     | PostgreSQLConfig
     | AzureBlobConfig
+    | BigQueryConfig
 )
 
 

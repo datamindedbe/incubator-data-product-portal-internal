@@ -95,6 +95,7 @@ class Settings(BaseSettings):
         "S3TechnicalAssetConfiguration",
         "DatabricksTechnicalAssetConfiguration",
         "RedshiftTechnicalAssetConfiguration",
+        "BigQueryTechnicalAssetConfiguration",
     ]
 
     CODER_BASE_URL: str = ""
