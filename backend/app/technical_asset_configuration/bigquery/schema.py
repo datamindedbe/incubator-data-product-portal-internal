@@ -27,7 +27,7 @@ class BigQueryTechnicalAssetConfiguration(AssetProviderPlugin):
         display_name="BigQuery",
         icon_name="bigquery-logo.svg",
         platform_key="bigquery",
-        parent_platform="google_cloud",
+        parent_platform="gcp",
         result_label="Resulting dataset",
         result_tooltip="The BigQuery dataset you can access through this technical asset",
         detailed_name="Dataset",

@@ -40,8 +40,18 @@ def upgrade() -> None:
     bind = op.get_bind()
     session = orm.Session(bind=bind)
 
+    # Name must equal parent_platform.upper() from bigquery/schema.py's
+    # PlatformMetadata ("gcp" -> "GCP"), not a nicer display name like
+    # "Google Cloud" - the frontend resolves a clicked platform tile's real
+    # platform_id by string-matching the synthesized parent tile's label
+    # against this exact Platform.name (data-output-form.component.tsx),
+    # case-insensitively but with no separator normalization. "Google Cloud"
+    # (space) vs "GOOGLE_CLOUD" (underscore) never matches, so platform_id
+    # silently stayed empty on every submit - confirmed against a real 422.
+    # AWS/Azure only work today because their real names already happen to
+    # be the single-token uppercase form of their parent_platform key.
     gcp_id = session.execute(
-        sa.text("INSERT INTO platforms (name) VALUES ('Google Cloud') RETURNING id")
+        sa.text("INSERT INTO platforms (name) VALUES ('GCP') RETURNING id")
     ).scalar_one()
 
     session.execute(
@@ -80,7 +90,7 @@ def downgrade() -> None:
     session = orm.Session(bind=bind)
 
     session.execute(sa.text("DELETE FROM platform_services WHERE name = 'bigquery'"))
-    session.execute(sa.text("DELETE FROM platforms WHERE name = 'Google Cloud'"))
+    session.execute(sa.text("DELETE FROM platforms WHERE name = 'GCP'"))
 
     session.commit()
 
