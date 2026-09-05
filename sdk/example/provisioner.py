@@ -29,7 +29,6 @@ import os
 from collections.abc import Iterable
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any
 from uuid import UUID
 
 from fastapi import FastAPI, Request
@@ -199,8 +198,15 @@ app = FastAPI(lifespan=lifespan)
 
 
 @app.post("/webhook")
-async def webhook(request: Request) -> dict[str, Any]:
-    return await request.app.state.handler.dispatch_routing(request)
+async def webhook(request: Request) -> dict[str, str]:
+    # Do not return dispatch_routing's value. It is typed Any, and every
+    # event type that enqueues resolves to None because ReconcileEventHandler's
+    # on_*_event methods have no return statement - so returning it from an
+    # endpoint with a dict response model raises ResponseValidationError and
+    # answers 500. The enqueue still happens, and the portal logs the failed
+    # delivery as a warning and drops it, so this is invisible from both sides.
+    await request.app.state.handler.dispatch_routing(request)
+    return {"status": "queued"}
 
 
 @app.get("/healthz")
