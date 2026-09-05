@@ -13,7 +13,7 @@ from app.core.helpers.local import add_additional_env_vars
 
 add_additional_env_vars()
 
-from app.database.database import get_db_session, get_url  # noqa: E402
+from app.database.database import db_session, get_url  # noqa: E402
 from app.seed import seed_db  # noqa: E402
 
 app = typer.Typer(help="Database migration toolkit for the Data product portal.")
@@ -105,7 +105,7 @@ def init_if_empty(
     migrate()
 
     if seed_path:
-        db = next(get_db_session())
+        db = next(db_session())
         domain_count = db.execute(text("SELECT COUNT(*) FROM domains")).scalar()
         if domain_count == 0:
             seed_cmd(seed_path)
